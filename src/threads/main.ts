@@ -1,17 +1,49 @@
 import { Worker } from 'node:worker_threads'
 import os from 'node:os'
+import fs from 'node:fs'
+const numCPUs = os.cpus().length
+const threadsForUse = 12
+const filePath = './bigfile.json'
 
-const numCPUs = os.cpus().length // nucleos disponiveis
+if (threadsForUse > numCPUs) {
+  throw new Error('Número de threads excedido')
+}
 
-console.log(numCPUs)
+const fileStats = fs.statSync(filePath)
+const totalFileSize = fileStats.size
+const bytesPerThread = Math.floor(totalFileSize / threadsForUse)
 
-for (let i = 0; i < numCPUs; i++) {
-  const worker = new Worker('./worker.js', {
-    workerData: { id: i }
+console.log(
+  `Tamanho total do arquivo: ${(totalFileSize / (1024 * 1024)).toFixed(2)} MB`
+)
+console.log(
+  `Cada thread irá processar aproximadamente: ${(
+    bytesPerThread /
+    (1024 * 1024)
+  ).toFixed(2)} MB`
+)
+
+for (let i = 0; i < threadsForUse; i++) {
+  const start = i * bytesPerThread
+  const end =
+    i === threadsForUse - 1 ? totalFileSize - 1 : (i + 1) * bytesPerThread - 1
+
+  const worker = new Worker('./src/threads/workers.js', {
+    workerData: {
+      id: i,
+      filePath,
+      start,
+      end
+    }
   })
 
   worker.on('message', msg => {
-    console.log(`Worker ${msg.id} terminou em ${msg.time}ms`)
+    if (msg.error) {
+      console.error(`Worker ${msg.id} erro: ${msg.error}`)
+    } else {
+      console.log(`Worker ${msg.id} terminou em ${msg.time}ms`)
+      console.log(`Worker ${msg.id} processou: ${msg.processedBytes} bytes`)
+    }
   })
 
   worker.on('error', err => {

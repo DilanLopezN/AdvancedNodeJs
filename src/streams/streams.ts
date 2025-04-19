@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import { pipeline, Transform, Writable, Readable } from 'node:stream'
 import { parser } from 'stream-json'
 import { streamArray } from 'stream-json/streamers/StreamArray'
+
 const fileStream = fs.createReadStream('./bigfile.json')
 
 const transformedStream = new Transform({
