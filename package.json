@@ -1,0 +1,20 @@
+{
+  "name": "node_streams",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@types/node": "^22.14.1",
+    "stream-json": "^1.9.1",
+    "tsx": "^4.19.3"
+  },
+  "devDependencies": {
+    "@types/stream-json": "^1.7.8"
+  }
+}
